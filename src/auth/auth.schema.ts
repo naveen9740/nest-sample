@@ -10,9 +10,6 @@ export class Auth {
 
   @Prop()
   password: string;
-
-  @Prop()
-  age: number;
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);
