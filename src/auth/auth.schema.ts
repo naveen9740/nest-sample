@@ -5,11 +5,11 @@ export type AuthDocument = Auth & Document;
 
 @Schema()
 export class Auth {
-  @Prop()
+  @Prop({ unique: true })
   name: string;
 
   @Prop()
   password: string;
 }
-
+// select: false --> to hide data.
 export const AuthSchema = SchemaFactory.createForClass(Auth);
