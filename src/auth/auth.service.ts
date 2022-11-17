@@ -4,10 +4,14 @@ import mongoose, { Model } from 'mongoose';
 import { Auth, AuthDocument } from './auth.schema';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable({})
 export class AuthService {
-  constructor(@InjectModel(Auth.name) private authModel: Model<AuthDocument>) {}
+  constructor(
+    config: ConfigService,
+    @InjectModel(Auth.name) private authModel: Model<AuthDocument>,
+  ) {}
 
   async login(dto: AuthDto) {
     try {
@@ -37,3 +41,4 @@ export class AuthService {
     return this.authModel.find().exec();
   }
 }
+// 1.33
