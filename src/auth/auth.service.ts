@@ -5,12 +5,14 @@ import { Auth, AuthDocument } from './auth.schema';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable({})
 export class AuthService {
   constructor(
-    config: ConfigService,
+    private config: ConfigService,
     @InjectModel(Auth.name) private authModel: Model<AuthDocument>,
+    private jwt: JwtService,
   ) {}
 
   async login(dto: AuthDto) {
@@ -20,11 +22,12 @@ export class AuthService {
       const verify = await argon.verify(user[0].password, dto.password);
       if (!verify) throw new ForbiddenException('Credentials Incorrect');
 
-      return verify;
+      return this.signToken(dto.name, dto.password);
     } catch (error) {
       console.log({ error });
     }
   }
+
   async register(dto: AuthDto) {
     try {
       const hash = await argon.hash(dto.password);
@@ -40,5 +43,19 @@ export class AuthService {
   async getUsers() {
     return this.authModel.find().exec();
   }
+
+  async signToken(
+    username: string,
+    password: string,
+  ): Promise<{ access_token: string }> {
+    const payload = {
+      username,
+      password,
+    };
+    const secret = this.config.get('JWT_SECRET');
+    const token = this.jwt.sign(payload, { expiresIn: '10s', secret });
+    return {
+      access_token: token,
+    };
+  }
 }
-// 1.33
