@@ -53,7 +53,7 @@ export class AuthService {
       password,
     };
     const secret = this.config.get('JWT_SECRET');
-    const token = this.jwt.sign(payload, { expiresIn: '10s', secret });
+    const token = this.jwt.sign(payload, { expiresIn: '6000s', secret });
     return {
       access_token: token,
     };
