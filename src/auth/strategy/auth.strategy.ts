@@ -23,5 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     // this will send data in req.user
     const user = await this.authModel.find({ username: payload.username });
     return user;
+  
   }
 }
