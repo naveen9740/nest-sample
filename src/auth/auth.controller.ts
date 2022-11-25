@@ -1,5 +1,4 @@
-import { Body, Controller, Get, ParseIntPipe, Post } from '@nestjs/common';
-import { get } from 'http';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 
@@ -25,5 +24,15 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: AuthDto) {
     return this.authService.login(dto);
+  }
+
+  @Post('json-xml')
+  jsonToxml(@Body() data: any) {
+    return this.authService.jsonToxml(data);
+  }
+
+  @Post('xml-json')
+  respond(@Body() data: any) {
+    return this.authService.xmlToJson(data);
   }
 }

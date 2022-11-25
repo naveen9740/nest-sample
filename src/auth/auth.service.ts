@@ -7,6 +7,9 @@ import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
+const converter = require('xml-js');
+const formatxml = require('xml-formatter');
+
 @Injectable({})
 export class AuthService {
   constructor(
@@ -57,5 +60,25 @@ export class AuthService {
     return {
       access_token: token,
     };
+  }
+
+  async jsonToxml(data: any) {
+    const result = converter.json2xml(JSON.stringify(data), {
+      compact: true,
+    });
+    const formattedXml = formatxml(result, {
+      indentation: '  ',
+      filter: (node: any) => node.type !== 'Comment',
+      collapseContent: true,
+      lineSeparator: '',
+    });
+    return formattedXml;
+  }
+
+  async xmlToJson(data: any) {
+    const result = converter.xml2json(data, {
+      compact: true,
+    });
+    return result;
   }
 }
