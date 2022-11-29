@@ -6,6 +6,9 @@ import { AuthDto } from './dto';
 import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Sequelize } from 'sequelize-typescript';
+import { InjectModel as pgInjectModel } from '@nestjs/sequelize';
+import { AuthModel } from './auth.model';
 
 const converter = require('xml-js');
 const formatxml = require('xml-formatter');
@@ -15,14 +18,20 @@ export class AuthService {
   constructor(
     private config: ConfigService,
     @InjectModel(Auth.name) private authModel: Model<AuthDocument>,
+    @pgInjectModel(AuthModel) private pgAuth: typeof AuthModel,
     private jwt: JwtService,
   ) {}
 
   async login(dto: AuthDto) {
     try {
-      const user = await this.authModel.find({ name: dto.name });
+      const user = await this.pgAuth.findOne({
+        where: {
+          name: dto.name,
+        },
+      });
+
       if (!user) throw new ForbiddenException('Credentials Incorrect');
-      const verify = await argon.verify(user[0].password, dto.password);
+      const verify = await argon.verify(user.dataValues.password, dto.password);
       if (!verify) throw new ForbiddenException('Credentials Incorrect');
 
       return this.signToken(dto.name, dto.password);
@@ -34,8 +43,10 @@ export class AuthService {
   async register(dto: AuthDto) {
     try {
       const hash = await argon.hash(dto.password);
-      const user = new this.authModel({ name: dto.name, password: hash });
-      return await user.save();
+      return await this.pgAuth.create({
+        name: dto.name,
+        password: hash,
+      });
     } catch (error) {
       if (error.code == 11000)
         throw new ForbiddenException('Duplicate name found');
@@ -44,7 +55,7 @@ export class AuthService {
   }
 
   async getUsers() {
-    return this.authModel.find().exec();
+    return await this.pgAuth.findAll();
   }
 
   async signToken(

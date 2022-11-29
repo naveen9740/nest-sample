@@ -11,10 +11,13 @@ import { Auth, AuthSchema } from './auth.schema';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategy';
 import { XMLMiddleware } from './middleware';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { AuthModel } from './auth.model';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
+    SequelizeModule.forFeature([AuthModel]),
     JwtModule.register({}),
   ],
   controllers: [AuthController],
