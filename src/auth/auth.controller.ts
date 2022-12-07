@@ -9,7 +9,7 @@ export class AuthController {
 
   // login(@Body() dto: AuthDto);
   // or use pipes
-  // @Body('name', ParseIntPipe) name: string,
+  // @  ('name', ParseIntPipe) name: string,
   // @Body('password') password: string,
 
   @Post('register')
